@@ -116,7 +116,7 @@ def keyUpdate():
 		selected = 4
 	playerInventory.select(selected)
 	playerInventory.setTop()
-def callback(event):
+def callbackRight(event):
 	#test
 	kg = float("+inf")
 	for block in blockList:
@@ -130,7 +130,6 @@ def callback(event):
 	placeBlock = True
 	for block in blockList:
 		if block.testClick(x, y):
-			block.clicked()
 			placeBlock = False
 	if placeBlock and y > kg-120*32:
 		yBed = float("inf")
@@ -147,7 +146,12 @@ def callback(event):
 			else:
 				if playerInventory.removeItem():
 					blockList.append(Block(xPlace, yPlace, playerInventory.itemSelected))
-
+def callback(event):
+	x = event.x
+	y = event.y
+	for block in blockList:
+		if block.testClick(x, y):
+			block.clicked()
 #Canvas setup
 canvas = Canvas(window, width=350, height=350)
 allBlockImg = {}
@@ -163,6 +167,7 @@ window.bind("<KeyPress>", keyDown)
 window.bind("<KeyRelease>", keyUp)
 window.title("Minecraft Python Edition")
 canvas.bind("<Button-1>", callback)
+canvas.bind("<Button-3>", callbackRight)
 canvas.pack()
 canvas.focus_set()
 #classes
