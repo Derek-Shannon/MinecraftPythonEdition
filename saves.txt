@@ -1,0 +1,40 @@
+#problems = (...)
+12/18/2021: 11:00
+12/18/2021: 03:11 #bedrock added
+12/19/2021: 00:00 #inf world, (collapsing caves)
+12/19/2021: 06:07 #(world gen bugs with gen loop)
+12/19/2021: 06:25 #inf world, no collapsing caves
+12/19/2021: 06:37 #(chunk shifts) and block counter
+12/21/2021: 01:55 #bugs fixed
+12/24/2021: 02:50 #block placing added(can place block inside on bottom)
+12/24/2021: 11:22 #more bedrock(unstable placing)
+12/25/2021: 11:08 #placing complete
+12/25/2021: 11:51 #world heigh generation limits(player height off)
+12/25/2021: 12:01 #player height when clicked corrected
+12/25/2021: 03:22 #info toggle/removed .setCollisionBox/increase loaded area on left/trees added
+12/25/2021: 03:42 #tree spacing added
+12/25/2021: 05:38 #flattened world/tree tweaks off spawn
+12/26/2021: 10:43 #world block placing height/can click while falling between blocks
+12/26/2021: 11:21 #adjustable hitboxes for blocks(*grass breaking causes error*)
+12/26/2021: 11:48 #world gen restored(nothing saves)
+12/26/2021: 01:09 #world gen restored
+12/26/2021: 03:09 #better img system/items added(no item functions except place on break)
+12/26/2021: 07:17 #items move with screen(no gravity/hitbox)(y-cords were rounded for everything)
+12/26/2021: 08:16 #item gravity(items fall when unload/super laggy/blocks inside items crash)
+12/26/2021: 08:51 #fixed blocks inside items/less laggy/items don't fall offscreen (~40 max items)
+12/26/2021: 09:10 #items can be pickedup-removed(big stack can be pushed off world cuz low-latency colission detection)
+12/27/2021: 02:24 #bug fixes/world height set 120/items don't fall out of world/img fixed
+12/27/2021: 02:40 #high-speed game loop @ 40tps (possible input lag)
+12/28/2021: 01:10 #first proper placing(when unloading left, deletes world)
+12/08/2022: 06:56 #no problems working version
+12/31/2022: 04:31 #fixed inconsistant place and breaking on edges of blocks
+12/31/2022: 04:52 #added FPS but items cause world deletion(previous bug on 12/28/2021)
+12/31/2022: 05:47 #fixed items from not falling while still noticibly on screen world deletion bug seems to be fixed!
+01/01/2023: 11:42 #added UI for inventory and ability to store and use items(can't see items yet)
+01/01/2023: 01:25 #items in inventory are displayed and max99
+01/01/2023: 02:14 #added coal and created first speed run called 6x6 layered with 189sec
+
+Things to add:
+    non-fps based player speed(adjustable player speed)
+    save world
+    fun items(jump juice block)
