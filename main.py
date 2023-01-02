@@ -66,15 +66,22 @@ def keyUpdate():
 		x += playerSpeed
 	if keys[3] == True:
 		x -= playerSpeed
-	if keys[4] == True and jumping == False:
-		jumping = True
-		velY = 8
-	elif velY < -15:
-		velY = -15
-	readyToJump = False
 	for block in blockList:
 		if block.testCollision(x,0):
 			x=0
+	if keys[4] == True and jumping == False:
+		jumping = True
+		tVelY = velY
+		for block in blockList:
+			if block.testCollision(0,velY):
+				if block.type == "jumpJuice":
+					tVelY = 14
+				else:
+					tVelY = 8
+		velY = tVelY
+	elif velY < -15:
+		velY = -15
+	readyToJump = False
 	for block in blockList:
 		running = True
 		while running:
@@ -296,13 +303,22 @@ class Player:
 		for dirt in range(3):
 			y += 32
 			blockList.append(Block(x,y, "dirt"))
-		y += 32
-		while y < max([block.y1 for block in blockList])-138:
-			if random.randint(0,30) != 0:
-				blockList.append(Block(x,y, "stone"))
-			else:
-				blockList.append(Block(x,y, "coal"))
+		while y < max([block.y1 for block in blockList])-170:
 			y += 32
+			if y<max([block.y1 for block in blockList])-170:
+				if random.randint(0,30) != 0:
+					blockList.append(Block(x,y, "stone"))
+				else:
+					blockList.append(Block(x,y, "coal"))
+			else:
+				if random.randint(0,30) == 0:
+					blockList.append(Block(x,y, "jumpJuice"))
+				else:
+					if random.randint(0,30) != 0:
+						blockList.append(Block(x,y, "stone"))
+					else:
+						blockList.append(Block(x,y, "coal"))
+		y+=32
 		for amount in range(5):
 			blockList.append(Block(x,y, "bedrock"))
 			y += 32
@@ -367,7 +383,7 @@ class Block:
 		self.info = ""
 		self.img = ""
 		#full blocks
-		basicBlocks = ["plank", "stone", "dirt", "grass", "cobble", "coal"]
+		basicBlocks = ["plank", "stone", "dirt", "grass", "cobble", "coal","jumpJuice"]
 		if self.type == "bedrock":
 			self.img = allBlockImg[self.type]
 			self.breakable = False
@@ -436,6 +452,7 @@ class Inventory:
 		self.selected = 1
 		self.slots = [["",0,"",0],["",0,"",0],["",0,"",0],["",0,"", 0]]#name,quantity,canvas element block, canvas element number
 		self.itemSelected = ""
+		self.monitors = canvas.create_text(1,1, text="Total Time: {:<10d} FPS: {:4d}".format(0, 0), fill="black", font=('Helvetica 6'), anchor="nw")
 	def setTop(self):
 		for element in self.slotElements:
 			canvas.tag_raise(element, "all")
@@ -444,6 +461,7 @@ class Inventory:
 			if slot[2] !="":
 				canvas.tag_raise(slot[2], "all")
 				canvas.tag_raise(slot[3], "all")
+		canvas.tag_raise(self.monitors, "all")
 	def select(self, slot):
 		if slot != 0:
 			canvas.moveto(self.selectedElement, 10+(slot-1)*32, 10)
@@ -494,10 +512,19 @@ for column in range(12):
 		blockList.append(Block(x,y, "dirt"))
 	while y < 1000:
 		y += 32
-		if random.randint(0,30) != 0:
-			blockList.append(Block(x,y, "stone"))
+		if y<1000:
+			if random.randint(0,30) != 0:
+				blockList.append(Block(x,y, "stone"))
+			else:
+				blockList.append(Block(x,y, "coal"))
 		else:
-			blockList.append(Block(x,y, "coal"))
+			if random.randint(0,30) == 0:
+				blockList.append(Block(x,y, "jumpJuice"))
+			else:
+				if random.randint(0,30) != 0:
+					blockList.append(Block(x,y, "stone"))
+				else:
+					blockList.append(Block(x,y, "coal"))
 	for amount in range(5):
 		y += 32
 		blockList.append(Block(x,y, "bedrock"))
@@ -505,19 +532,20 @@ for column in range(12):
 
 player.spawn()
 tTime,frames,sec = 0,0,0
+fpsCap = 40 #default 40
 def fps():
 	global tTime,frames,delta,sec
-	tTime+=(delta+max(1./40 - delta, 0))
+	tTime+=(delta+max(1./fpsCap - delta, 0))
 	frames+=1
-	if tTime >=1:
-		tTime=0
-		sec+=1
-		print("Total sec: "+str(sec)+" & fps: "+str(frames))
+	if tTime >=0.5: #update speed
+		sec+=round(tTime,1)
+		canvas.itemconfig(playerInventory.monitors, text="Total Time: {:<10s} FPS: {:4s}".format(str(sec), str(round(frames/tTime,1))))
 		frames = 0
+		tTime=0
 while True:
 	start = time.time()
 	keyUpdate()
 	window.update()
 	delta = (time.time() - start)
-	time.sleep(max(1./40 - delta, 0))
+	time.sleep(max(1./fpsCap - delta, 0))
 	fps()

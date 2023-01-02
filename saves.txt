@@ -33,6 +33,10 @@
 01/01/2023: 11:42 #added UI for inventory and ability to store and use items(can't see items yet)
 01/01/2023: 01:25 #items in inventory are displayed and max99
 01/01/2023: 02:14 #added coal and created first speed run called 6x6 layered with 189sec
+01/02/2023: 03:00 #fps monitor(seconds are not prper if fps drops and is consistantly slow)
+01/02/2023: 05:35 #jumpJuice block added and fps monitor relocated
+
+NOTE! -> Future updates will be on giHub!
 
 Things to add:
     non-fps based player speed(adjustable player speed)
