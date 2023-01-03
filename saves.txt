@@ -39,6 +39,7 @@
 NOTE! -> Future updates will be on giHub!
 
 Things to add:
+    structure gen rework
     non-fps based player speed(adjustable player speed)
     save world
     fun items(jump juice block)
