@@ -108,9 +108,9 @@ def keyUpdate():
 	max1 = max(block.x1 for block in blockList if block.type == "grass")
 	min1 = min(block.x1 for block in blockList if block.type == "grass")
 	if min1 > -60:
-		player.genLeft(min1)
+		player.genLeft(False)
 	if max1 < 380:
-		player.genRight(max1)
+		player.genRight(False)
 	#UI set Up
 	selected = 0
 	if keys[6]:
@@ -204,8 +204,9 @@ class Player:
 		change = 206 - min
 		for block in blockList:
 			block.move(0, change)
-	def genLeft(self, min1):
-		if len(blockDeadListL) > 0:
+	def genLeft(self,skip):
+		min1 = min(block.x1 for block in blockList if block.type == "grass")
+		if len(blockDeadListL) > 0 and not skip:
 			y = max([block.y1 for block in blockList])
 			for index in range(0,len(blockDeadListL[len(blockDeadListL)-1])):
 				type1 = blockDeadListL[len(blockDeadListL)-1][index]
@@ -228,23 +229,25 @@ class Player:
 			player.genChunk(min1-32, min2, structure)
 
 		#unload
-		unloadList = []
-		for block in range(128):
-			unloadList.append("")
-		YorN = False
-		max1 = max([block.y1 for block in blockList])
-		for count in range(len(blockList)-1, -1, -1):
-			block = blockList[count]
-			if block.x1 == 454:
-				index = int(round((max1-block.y1)/32))
-				unloadList[index] = block.type
-				block.delSelf()
-				YorN = True
-		if YorN == True:
-			blockDeadListR.append(unloadList)
+		if not skip:
+			unloadList = []
+			for block in range(128):
+				unloadList.append("")
+			YorN = False
+			max1 = max([block.y1 for block in blockList])
+			for count in range(len(blockList)-1, -1, -1):
+				block = blockList[count]
+				if block.x1 == 454:
+					index = int(round((max1-block.y1)/32))
+					unloadList[index] = block.type
+					block.delSelf()
+					YorN = True
+			if YorN == True:
+				blockDeadListR.append(unloadList)
 			
-	def genRight(self, max1):
-		if len(blockDeadListR) > 0:
+	def genRight(self, skip):
+		max1 = max(block.x1 for block in blockList if block.type == "grass")
+		if len(blockDeadListR) > 0 and not skip:
 			y = max([block.y1 for block in blockList])
 			for index in range(0,len(blockDeadListR[len(blockDeadListR)-1])):
 				type1 = blockDeadListR[len(blockDeadListR)-1][index]
@@ -266,59 +269,74 @@ class Player:
 			max2 += 32 * random.randint(-1,1)*random.randint(0,1)
 			player.genChunk(max1+32, max2, structure)
 		#unload
-		unloadList = []
-		for block in range(128):
-			unloadList.append("")
-		YorN = False
-		max1 = max([block.y1 for block in blockList])
-		for count in range(len(blockList)-1, -1, -1):
-			block = blockList[count]
-			if block.x1 == -134:
-				index = int(round((max1-block.y1)/32))
-				unloadList[index] = block.type
-				block.delSelf()
-				YorN = True
-		if YorN == True:
-			blockDeadListL.append(unloadList)
-
+		if not skip:
+			unloadList = []
+			for block in range(128):
+				unloadList.append("")
+			YorN = False
+			max1 = max([block.y1 for block in blockList])
+			for count in range(len(blockList)-1, -1, -1):
+				block = blockList[count]
+				if block.x1 == -134:
+					index = int(round((max1-block.y1)/32))
+					unloadList[index] = block.type
+					block.delSelf()
+					YorN = True
+			if YorN == True:
+				blockDeadListL.append(unloadList)
+	def createStructure(self,x):
+		right=False
+		if x>0:
+			right=True
+		y = min(block.y1 for block in blockList if block.x1 == x)
+		yLog = y-32
+		xLog = x
+		if random.randint(0,20) !=0:
+			if right:
+				self.genRight(True)
+				self.genRight(True)
+				difference = int((y-min(block.y1 for block in blockList if block.x1 >= x-64))/32)
+			else:
+				self.genLeft(True)
+				self.genLeft(True)
+				difference = int((y-min(block.y1 for block in blockList if block.x1 <= x+64))/32)
+			for log in range(max(1,difference),3):
+				blockList.append(Block(x,yLog, "log"))
+				yLog -=32
+			for yLeaves in range(2):
+				xTemp =xLog-64
+				for xLeaves in range(5):
+					blockList.append(Block(xTemp,yLog, "leaves"))
+					xTemp+=32
+				yLog-=32
+			blockList.append(Block(xLog-32,yLog-32, "leaves"))
+			blockList.append(Block(xLog,yLog-32, "leaves"))
+			blockList.append(Block(xLog+32,yLog-32, "leaves"))
+			blockList.append(Block(xLog-32,yLog, "leaves"))
+			blockList.append(Block(xLog,yLog, "leaves"))
+			blockList.append(Block(xLog+32,yLog, "leaves"))
+		else:
+			y+=32
+			for block in blockList:
+				if (block.x1+32==x or block.x1+64==x or block.x1-32==x or block.x1-64==x) and block.y1<y:
+					block.delSelf()
+			#boat
+			blockList.append(Block(x+64,y-64, "plank"))
+			blockList.append(Block(x+32,y-32, "plank"))
+			blockList.append(Block(x+32,y-64, "cobble"))
+			blockList.append(Block(x,y-32, "plank"))
+			blockList.append(Block(x-32,y-32, "plank"))
+			blockList.append(Block(x-32,y-64, "jumpJuice"))
+			blockList.append(Block(x-64,y-32, "plank"))
+			blockList.append(Block(x-64,y-64, "plank"))
+			#mast
+			blockList.append(Block(x,y-64, "plank"))
+			blockList.append(Block(x,y-96, "plank"))
+			blockList.append(Block(x,y-128, "plank"))
+			blockList.append(Block(x+32,y-128, "plank"))
+			blockList.append(Block(x,y-160, "plank"))
 	def genChunk(self, x, y, structure):
 		y = clamp(y, max([block.y1 for block in blockList])-32*90, max([block.y1 for block in blockList])-32*15)
-		#structure
-		yLog = y-32
-		xLog = x-32
-		if structure:
-			if random.randint(0,20) !=0:
-				for log in range(random.randint(1,3)):
-					blockList.append(Block(x,yLog, "log"))
-					yLog -=32
-				blockList.append(Block(xLog,yLog, "leaves"))
-				blockList.append(Block(xLog+32,yLog, "leaves"))
-				blockList.append(Block(xLog+64,yLog, "leaves"))
-				blockList.append(Block(xLog,yLog-32, "leaves"))
-				blockList.append(Block(xLog+32,yLog-32, "leaves"))
-				blockList.append(Block(xLog+64,yLog-32, "leaves"))
-				blockList.append(Block(xLog+32,yLog-64, "leaves"))
-			else:
-				y+=32
-				for block in blockList:
-					if (block.x1+32==x or block.x1+64==x or block.x1-32==x or block.x1-64==x) and block.y1<y:
-						block.delSelf()
-				#boat
-				blockList.append(Block(x+64,y-64, "plank"))
-				blockList.append(Block(x+32,y-32, "plank"))
-				blockList.append(Block(x+32,y-64, "cobble"))
-				blockList.append(Block(x,y-32, "plank"))
-				blockList.append(Block(x-32,y-32, "plank"))
-				blockList.append(Block(x-32,y-64, "jumpJuice"))
-				blockList.append(Block(x-64,y-32, "plank"))
-				blockList.append(Block(x-64,y-64, "plank"))
-				#mast
-				blockList.append(Block(x,y-64, "plank"))
-				blockList.append(Block(x,y-96, "plank"))
-				blockList.append(Block(x,y-128, "plank"))
-				blockList.append(Block(x+32,y-128, "plank"))
-				blockList.append(Block(x,y-160, "plank"))
-		#ground
 		chunk = []
 		grassHeightMax=-float("inf")
 		for block in blockList:
@@ -351,6 +369,8 @@ class Player:
 		for amount in range(5):
 			blockList.append(Block(x,y, "bedrock"))
 			y += 32
+		if structure:
+			self.createStructure(x)
 		#Fun display
 		total = 0
 		for chunk in range(len(blockDeadListL)):
@@ -358,6 +378,7 @@ class Player:
 		for chunk in range(len(blockDeadListR)):
 			total += len([block for block in blockDeadListR[chunk] if block != ""])
 		print("All saved blocks = "+str(len(blockList)+total) +", Loaded blocks = "+str(len(blockList)))
+
 class Block:
 	def __init__(self, x, y, type1):
 		self.x1 = x
