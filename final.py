@@ -306,39 +306,41 @@ class Player:
 
         # Collision detection (simple AABB)
         self.is_grounded = False
-        for x in range(int(self.pos.x), int(self.pos.x + self.width) + 1):
-            for y in range(int(self.pos.y), int(self.pos.y + self.height) + 1):
+        for x in range(int(self.pos.x)-1, int(self.pos.x + self.width) + 1):
+            for y in range(int(self.pos.y)-1, int(self.pos.y + self.height) + 1):
                 block = world.get_block(x, y)
                 if block and block.is_solid:
                     
                     block_rect = pygame.Rect(block.x * world.tile_size, block.y * world.tile_size, world.tile_size, world.tile_size)
-                    print(self.rect.colliderect(block_rect))
                     # if self.rect.colliderect(block_rect):
-                    print("nope with: " + block.block_type.name)
-                    # Collision on the top
-                    if self.vel.y < 0 and self.rect.bottom <= block_rect.top + 10:
+                    # Collision on the top of character
+                    if self.vel.y < 0 and self.rect.bottom <= block_rect.top:
                         self.rect.bottom = block_rect.top
                         self.pos.y = self.rect.y / world.tile_size
                         self.vel.y = 0
                         self.is_grounded = True
+                        print("Bottom character Collision")
                     
-                    # Collision on the bottom
-                    elif self.vel.y > 0 and self.rect.top >= block_rect.bottom - 10:
-                        self.rect.top = block_rect.bottom
-                        self.pos.y = self.rect.y / world.tile_size
-                        self.vel.y = 0
+                    # Collision on the bottom of CHARACTER
+                    # if self.vel.y > 0 and self.rect.top >= block_rect.bottom:
+                    #     self.rect.top = block_rect.bottom
+                    #     self.pos.y = self.rect.y / world.tile_size
+                    #     self.vel.y = 0
+                    #     print("Top character Collision")
                         
                     # Collision on the right
-                    elif self.vel.x > 0 and self.rect.left >= block_rect.right - 10:
-                        self.rect.left = block_rect.right
-                        self.pos.x = self.rect.x / world.tile_size
-                        self.vel.x = 0
-
-                    # Collision on the left
-                    elif self.vel.x < 0 and self.rect.right <= block_rect.left + 10:
+                    if self.vel.x < 0 and self.rect.right <= block_rect.left:
                         self.rect.right = block_rect.left
                         self.pos.x = self.rect.x / world.tile_size
                         self.vel.x = 0
+                        print("right Collision")
+
+                    # Collision on the left
+                    if self.vel.x > 0 and self.rect.left >= block_rect.right:
+                        self.rect.left = block_rect.right
+                        self.pos.x = self.rect.x / world.tile_size
+                        self.vel.x = 0
+                        print("left Collision")
 
     def move_left(self):
         """Sets horizontal velocity to move left."""
@@ -515,14 +517,14 @@ class Renderer:
             for y in range(start_y, end_y):
                 block = world.get_block(x, y)
                 if block and block.texture:
-                    screen_x, screen_y = camera.world_to_screen(block.x, block.y + 1)
+                    screen_x, screen_y = camera.world_to_screen(block.x, block.y)
                     self.screen.blit(block.texture, (screen_x, screen_y - self.tile_size))
 
     def draw_player(self, player: Player, camera: Camera):
         """Draws the player character."""
         # Player is a simple rectangle for now
-        screen_x, screen_y = camera.world_to_screen(player.pos.x, player.pos.y + player.height)
-        player_rect = pygame.Rect(screen_x, screen_y - int(player.height * self.tile_size),
+        screen_x, screen_y = camera.world_to_screen(player.pos.x, player.pos.y)
+        player_rect = pygame.Rect(screen_x, screen_y - int((player.height+1) * self.tile_size),
                                   int(player.width * self.tile_size), int(player.height * self.tile_size))
         pygame.draw.rect(self.screen, (0, 128, 255), player_rect)
         
